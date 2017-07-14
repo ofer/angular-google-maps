@@ -80,7 +80,7 @@ export interface LazyMapsAPILoaderConfigLiteral {
 
 @Injectable()
 export class LazyMapsAPILoader extends MapsAPILoader {
-  private _scriptLoadingPromise: Promise<void>;
+  private _scriptLoadingPromises: {[key: string]: Promise<void>};
   private _config: LazyMapsAPILoaderConfigLiteral;
   private _windowRef: WindowRef;
   private _documentRef: DocumentRef;
@@ -90,28 +90,38 @@ export class LazyMapsAPILoader extends MapsAPILoader {
     this._config = config || {};
     this._windowRef = w;
     this._documentRef = d;
+    this._scriptLoadingPromises = {};
   }
 
-  load(): Promise<void> {
-    if (this._scriptLoadingPromise) {
-      return this._scriptLoadingPromise;
+  private loadFile(filename: string, callbackName: string): Promise<void> {
+    if (this._scriptLoadingPromises[callbackName]) {
+      return this._scriptLoadingPromises[callbackName];
     }
 
     const script = this._documentRef.getNativeDocument().createElement('script');
     script.type = 'text/javascript';
     script.async = true;
     script.defer = true;
-    const callbackName: string = `angular2GoogleMapsLazyMapsAPILoader`;
-    script.src = this._getScriptSrc(callbackName);
+    script.src = filename;
 
-    this._scriptLoadingPromise = new Promise<void>((resolve: Function, reject: Function) => {
+    this._scriptLoadingPromises[callbackName] = new Promise<void>((resolve: Function, reject: Function) => {
       (<any>this._windowRef.getNativeWindow())[callbackName] = () => { resolve(); };
 
       script.onerror = (error: Event) => { reject(error); };
     });
 
     this._documentRef.getNativeDocument().body.appendChild(script);
-    return this._scriptLoadingPromise;
+    return this._scriptLoadingPromises[callbackName];
+  }
+
+  load(): Promise<void> {
+    const callbackName: string = `angular2GoogleMapsLazyMapsAPILoader`;
+    return this.loadFile(this._getScriptSrc(callbackName), callbackName).then(() => {
+      // load the extra utilities
+      const callbackName: string = 'angular2GoogleMapsUtilityLazyMapsAPILoader';
+      // get utilities CDN
+      return this.loadFile('assets/markerwithlabel.js', callbackName);
+    });
   }
 
   private _getScriptSrc(callbackName: string): string {

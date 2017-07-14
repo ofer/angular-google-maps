@@ -29,7 +29,7 @@
     "bundle:umd:core": "rollup -c rollup.core.config.js",
     "ngc:esm": "ngc -p tsconfig.json",
     "clang:format": "clang-format --glob=packages/**/*.ts -i",
-    "postngc:esm": "mkdir -p dist/ && cp -R .tmp/esm/* dist/ && rimraf packages/**/*.ngfactory.ts",
+    "postngc:esm": "mkdir dist & xcopy /e .tmp\\esm dist & rimraf packages/**/*.ngfactory.ts",
     "test": "karma start",
     "test:watch": "karma start --no-single-run --auto-watch",
     "ci": "npm run build && npm run test",

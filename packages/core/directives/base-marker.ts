@@ -1,4 +1,4 @@
-import {Directive, EventEmitter, OnChanges, OnDestroy, SimpleChange,
+import {EventEmitter, OnChanges, OnDestroy, SimpleChange,
   AfterContentInit, ContentChildren, QueryList, Input, Output
 } from '@angular/core';
 import {Subscription} from 'rxjs/Subscription';
@@ -8,6 +8,10 @@ import * as mapTypes from '../services/google-maps-types';
 import {MarkerManager} from '../services/managers/marker-manager';
 
 import {AgmInfoWindow} from './info-window';
+
+import {IAgmMarker} from '../interfaces/imarker';
+import {GoogleMapsAPIWrapper} from '../services/google-maps-api-wrapper';
+import {Marker} from './../services/google-maps-types';
 
 let markerId = 0;
 
@@ -34,10 +38,7 @@ let markerId = 0;
  * })
  * ```
  */
-@Directive({
-  selector: 'agm-marker'
-})
-export class AgmMarker implements OnDestroy, OnChanges, AfterContentInit {
+export abstract class BaseMarker implements IAgmMarker, OnDestroy, OnChanges, AfterContentInit {
   /**
    * The latitude position of the marker.
    */
@@ -227,4 +228,20 @@ export class AgmMarker implements OnDestroy, OnChanges, AfterContentInit {
     // unsubscribe all registered observable subscriptions
     this._observableSubscriptions.forEach((s) => s.unsubscribe());
   }
+
+  abstract createMarker(apiWrapper: GoogleMapsAPIWrapper): Promise<Marker>;
+  //  {
+  //   return apiWrapper.createMarker({
+  //     position: {lat: this.latitude, lng: this.longitude},
+  //     label: this.label,
+  //     draggable: this.draggable,
+  //     icon: this.iconUrl,
+  //     opacity: this.opacity,
+  //     visible: this.visible,
+  //     zIndex: this.zIndex,
+  //     title: this.title,
+  //     clickable: this.clickable
+  //   });
+//
+  // }
 }

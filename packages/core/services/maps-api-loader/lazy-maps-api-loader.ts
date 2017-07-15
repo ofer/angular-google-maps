@@ -1,8 +1,8 @@
-import {Inject, Injectable, OpaqueToken} from '@angular/core';
+import { Inject, Injectable, OpaqueToken } from '@angular/core';
 
-import {DocumentRef, WindowRef} from '../../utils/browser-globals';
+import { DocumentRef, WindowRef } from '../../utils/browser-globals';
 
-import {MapsAPILoader} from './maps-api-loader';
+import { MapsAPILoader } from './maps-api-loader';
 
 export enum GoogleMapsScriptProtocol {
   HTTP = 1,
@@ -80,53 +80,62 @@ export interface LazyMapsAPILoaderConfigLiteral {
 
 @Injectable()
 export class LazyMapsAPILoader extends MapsAPILoader {
-  private _scriptLoadingPromises: {[key: string]: Promise<void>};
+  private _scriptLoadingPromise: Promise<void>;
   private _config: LazyMapsAPILoaderConfigLiteral;
   private _windowRef: WindowRef;
   private _documentRef: DocumentRef;
 
-  constructor(@Inject(LAZY_MAPS_API_CONFIG) config: any, w: WindowRef, d: DocumentRef) {
+  constructor( @Inject(LAZY_MAPS_API_CONFIG) config: any, w: WindowRef, d: DocumentRef) {
     super();
     this._config = config || {};
     this._windowRef = w;
     this._documentRef = d;
-    this._scriptLoadingPromises = {};
   }
 
-  private loadFile(filename: string, callbackName: string): Promise<void> {
-    if (this._scriptLoadingPromises[callbackName]) {
-      return this._scriptLoadingPromises[callbackName];
+  private loadGoogleMapsJs(): Promise<void> {
+    if (this._scriptLoadingPromise) {
+      return this._scriptLoadingPromise;
     }
 
     const script = this._documentRef.getNativeDocument().createElement('script');
     script.type = 'text/javascript';
     script.async = true;
     script.defer = true;
-    script.src = filename;
+    const callbackName: string = `angular2GoogleMapsLazyMapsAPILoader`;
+    script.src = this._getScriptSrc(callbackName);
 
-    this._scriptLoadingPromises[callbackName] = new Promise<void>((resolve: Function, reject: Function) => {
+    this._scriptLoadingPromise = new Promise<void>((resolve: Function, reject: Function) => {
       (<any>this._windowRef.getNativeWindow())[callbackName] = () => { resolve(); };
 
       script.onerror = (error: Event) => { reject(error); };
     });
 
     this._documentRef.getNativeDocument().body.appendChild(script);
-    return this._scriptLoadingPromises[callbackName];
+    return this._scriptLoadingPromise;
+  }
+
+  private loadFile(filename: string): Promise<void> {
+    return new Promise<void>((resolve: Function) => {
+      const script = this._documentRef.getNativeDocument().createElement('script');
+      script.type = 'text/javascript';
+      script.src = filename;
+
+      this._documentRef.getNativeDocument().body.appendChild(script);
+
+      resolve();
+    });
   }
 
   load(): Promise<void> {
-    const callbackName: string = `angular2GoogleMapsLazyMapsAPILoader`;
-    return this.loadFile(this._getScriptSrc(callbackName), callbackName).then(() => {
+    return this.loadGoogleMapsJs().then(() => {
       // load the extra utilities
-      const callbackName: string = 'angular2GoogleMapsUtilityLazyMapsAPILoader';
-      // get utilities CDN
-      return this.loadFile('assets/markerwithlabel.js', callbackName);
+      return this.loadFile('assets/markerwithlabel.js');
     });
   }
 
   private _getScriptSrc(callbackName: string): string {
     let protocolType: GoogleMapsScriptProtocol =
-        (this._config && this._config.protocol) || GoogleMapsScriptProtocol.HTTPS;
+      (this._config && this._config.protocol) || GoogleMapsScriptProtocol.HTTPS;
     let protocol: string;
 
     switch (protocolType) {
@@ -142,7 +151,7 @@ export class LazyMapsAPILoader extends MapsAPILoader {
     }
 
     const hostAndPath: string = this._config.hostAndPath || 'maps.googleapis.com/maps/api/js';
-    const queryParams: {[key: string]: string | Array<string>} = {
+    const queryParams: { [key: string]: string | Array<string> } = {
       v: this._config.apiVersion || '3',
       callback: callbackName,
       key: this._config.apiKey,
@@ -153,23 +162,23 @@ export class LazyMapsAPILoader extends MapsAPILoader {
       language: this._config.language
     };
     const params: string =
-        Object.keys(queryParams)
-            .filter((k: string) => queryParams[k] != null)
-            .filter((k: string) => {
-              // remove empty arrays
-              return !Array.isArray(queryParams[k]) ||
-                  (Array.isArray(queryParams[k]) && queryParams[k].length > 0);
-            })
-            .map((k: string) => {
-              // join arrays as comma seperated strings
-              let i = queryParams[k];
-              if (Array.isArray(i)) {
-                return {key: k, value: i.join(',')};
-              }
-              return {key: k, value: queryParams[k]};
-            })
-            .map((entry: {key: string, value: string}) => { return `${entry.key}=${entry.value}`; })
-            .join('&');
+      Object.keys(queryParams)
+        .filter((k: string) => queryParams[k] != null)
+        .filter((k: string) => {
+          // remove empty arrays
+          return !Array.isArray(queryParams[k]) ||
+            (Array.isArray(queryParams[k]) && queryParams[k].length > 0);
+        })
+        .map((k: string) => {
+          // join arrays as comma seperated strings
+          let i = queryParams[k];
+          if (Array.isArray(i)) {
+            return { key: k, value: i.join(',') };
+          }
+          return { key: k, value: queryParams[k] };
+        })
+        .map((entry: { key: string, value: string }) => { return `${entry.key}=${entry.value}`; })
+        .join('&');
     return `${protocol}//${hostAndPath}?${params}`;
   }
 }

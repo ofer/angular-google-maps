@@ -2,7 +2,7 @@ import {Injectable, NgZone} from '@angular/core';
 import {Observable} from 'rxjs/Observable';
 import {Observer} from 'rxjs/Observer';
 
-import {BaseMarker} from './../../directives/base-marker';
+import {AgmMarker} from './../../directives/agm-marker';
 
 import {GoogleMapsAPIWrapper} from './../google-maps-api-wrapper';
 import {Marker} from './../google-maps-types';
@@ -29,40 +29,40 @@ export class MarkerManager {
     });
   }
 
-  updateMarkerPosition(marker: BaseMarker): Promise<void> {
+  updateMarkerPosition(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then(
         (m: Marker) => m.setPosition({lat: marker.latitude, lng: marker.longitude}));
   }
 
-  updateTitle(marker: BaseMarker): Promise<void> {
+  updateTitle(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => m.setTitle(marker.title));
   }
 
-  updateLabel(marker: BaseMarker): Promise<void> {
+  updateLabel(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => { m.setLabel(marker.label); });
   }
 
-  updateDraggable(marker: BaseMarker): Promise<void> {
+  updateDraggable(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => m.setDraggable(marker.draggable));
   }
 
-  updateIcon(marker: BaseMarker): Promise<void> {
+  updateIcon(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => m.setIcon(marker.iconUrl));
   }
 
-  updateOpacity(marker: BaseMarker): Promise<void> {
+  updateOpacity(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => m.setOpacity(marker.opacity));
   }
 
-  updateVisible(marker: BaseMarker): Promise<void> {
+  updateVisible(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => m.setVisible(marker.visible));
   }
 
-  updateZIndex(marker: BaseMarker): Promise<void> {
+  updateZIndex(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => m.setZIndex(marker.zIndex));
   }
 
-  updateClickable(marker: BaseMarker): Promise<void> {
+  updateClickable(marker: AgmMarker): Promise<void> {
     return this._markers.get(marker).then((m: Marker) => m.setClickable(marker.clickable));
   }
 

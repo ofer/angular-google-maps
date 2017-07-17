@@ -1,15 +1,14 @@
 /* tslint:disable:variable-name */
-export var google: any;
-export var MarkerWithLabel: any;
 
 import { Directive, Input } from '@angular/core';
 // import {Subscription} from 'rxjs/Subscription';
 import { LatLngLiteral } from '../services/google-maps-types';
 
-import { BaseMarker } from './base-marker';
+import { AgmMarker } from './agm-marker';
 import { GoogleMapsAPIWrapper } from '../services/google-maps-api-wrapper';
 import { Marker } from './../services/google-maps-types';
 
+declare var MarkerWithLabel: any;
 /**
  * AgmMarker renders a map marker inside a {@link AgmMap}.
  *
@@ -36,7 +35,7 @@ import { Marker } from './../services/google-maps-types';
 @Directive({
   selector: 'agm-marker-with-label'
 })
-export class AgmMarkerWithLabel extends BaseMarker {
+export class AgmMarkerWithLabel extends AgmMarker {
   @Input() labelClass: string;
 
   // private getMarkerWithLabelOptions(): MarkerWithLabelOptions {
@@ -55,7 +54,7 @@ export class AgmMarkerWithLabel extends BaseMarker {
         visable: true,
         raiseOnDrag: false,
         map: nm,
-  //      labelContent: elementRef.nativeElement.innerHTML,
+        labelContent: this.label,
         labelVisible: true,
         labelClass: this.labelClass,
         icon: this.iconUrl

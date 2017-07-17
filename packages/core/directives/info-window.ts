@@ -2,12 +2,12 @@ import { Component, ElementRef, EventEmitter, OnChanges, OnDestroy, OnInit, Simp
 
 import {InfoWindowManager} from '../services/managers/info-window-manager';
 
-import {BaseMarker} from './base-marker';
+import {AgmMarker} from './agm-marker';
 
 let infoWindowId = 0;
 
 /**
- * AgmInfoWindow renders a info window inside a {@link BaseMarker} or standalone.
+ * AgmInfoWindow renders a info window inside a {@link AgmMarker} or standalone.
  *
  * ### Example
  * ```typescript
@@ -76,7 +76,7 @@ export class AgmInfoWindow implements OnDestroy, OnChanges, OnInit {
   /**
    * Holds the marker that is the host of the info window (if available)
    */
-  hostMarker: BaseMarker;
+  hostMarker: AgmMarker;
 
   /**
    * Holds the native element that is used for the info window content.

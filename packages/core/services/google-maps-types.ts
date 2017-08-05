@@ -423,6 +423,22 @@ export interface DataOptions {
   style?: () => void;
 }
 
+export interface GroundOverlay {
+  constructor(url: string, bounds: LatLngBounds | LatLngBoundsLiteral, opts?: GroundOverlayOptions): void;
+  getBounds(): LatLngBounds;
+  getMap(): GoogleMap;
+  getOpacity(): number;
+  getUrl(): string;
+  setMap(map: GoogleMap): void;
+  setOpacity(opacity: number): void;
+}
+
+export interface GroundOverlayOptions {
+  clickable: boolean;
+  opacity: number;
+  map?: GoogleMap;
+}
+
 export interface DataMouseEvent extends MouseEvent {
   feature: Feature;
 }

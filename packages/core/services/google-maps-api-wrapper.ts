@@ -89,6 +89,16 @@ export class GoogleMapsAPIWrapper {
   }
 
   /**
+   * Creates a new google.map.GroundOverlay layer for the current map
+   */
+  createOverlayLayer(url: string, bounds: mapTypes.LatLngBounds|mapTypes.LatLngBoundsLiteral, options?: mapTypes.GroundOverlayOptions): Promise<mapTypes.GroundOverlay> {
+    return this._map.then(m => {
+      let overlay = new google.maps.GroundOverlay(url, bounds, options);
+      overlay.setMap(m);
+      return overlay;
+    });
+  }
+  /**
    * Determines if given coordinates are insite a Polygon path.
    */
   containsLocation(latLng: mapTypes.LatLngLiteral, polygon: mapTypes.Polygon): Promise<boolean> {

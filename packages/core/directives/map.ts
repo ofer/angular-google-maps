@@ -274,6 +274,11 @@ export class AgmMap implements OnChanges, OnInit, OnDestroy {
   @Output() mapClick: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
 
   /**
+   * This event emitter gets emitted when the user moves the mouse on the map (but not when the mouse is moved over a marker or infowindow)
+   */
+  @Output() mouseMove: EventEmitter<MouseEvent> = new EventEmitter<MouseEvent>();
+
+  /**
    * This event emitter gets emitted when the user right-clicks on the map (but not when they click
    * on a marker or infoWindow).
    */
@@ -489,6 +494,7 @@ export class AgmMap implements OnChanges, OnInit, OnDestroy {
       {name: 'click', emitter: this.mapClick},
       {name: 'rightclick', emitter: this.mapRightClick},
       {name: 'dblclick', emitter: this.mapDblClick},
+      {name: 'mousemove', emitter: this.mouseMove}
     ];
 
     events.forEach((e: Event) => {
